@@ -386,8 +386,16 @@ $(document).ready(function() {
 
                 for (var k = 0; k < params.length; ++k) {
                     var item = [];
-                    for (var j = 0; j < params[k].length && (j+1)*count <= max_curves; ++j) {
-                        item.push(j);
+                    if (state_selection[param_names[k]] !== undefined) {
+                        for (var j = 0; j < params[k].length; ++j) {
+                            if (state_selection[param_names[k]].includes($.asv.convert_benchmark_param_value(params[k][j]))) {
+                                item.push(j);
+                            }
+                        }
+                    } else {
+                        for (var j = 0; j < params[k].length && (j+1)*count <= max_curves; ++j) {
+                            item.push(j);
+                        }
                     }
                     count = count * item.length;
                     benchmark_param_selection.push(item);
@@ -400,7 +408,7 @@ $(document).ready(function() {
         replace_benchmark_params_ui();
     }
 
-    function update_state_url() {
+    function update_state_url(params) {
         var info = $.asv.parse_hash_string(window.location.hash);
         $.each($.asv.master_json.params, function(param, values) {
             if (values.length > 1) {
@@ -411,6 +419,9 @@ $(document).ready(function() {
                     delete info.params[param];
                 }
             }
+        });
+        $.each(params || {}, function(key, value) {
+            info.params[key] = value;
         });
         window.location.hash = $.asv.format_hash_string(info);
     }
@@ -616,8 +627,11 @@ $(document).ready(function() {
                         }
                     }
                     benchmark_param_selection[param_idx+1] = new_selection;
-                    replace_graphs();
-                    update_graphs();
+                    var new_selection_params = {};
+                    new_selection_params[param_names[param_idx]] = new_selection.map(function(k) {
+                        return $.asv.convert_benchmark_param_value(params[param_idx][k]);
+                    });
+                    update_state_url(new_selection_params);
                 });
             });
         });
