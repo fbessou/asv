@@ -385,15 +385,17 @@ $(document).ready(function() {
                 var max_curves = 8;
 
                 for (var k = 0; k < params.length; ++k) {
+                    var param_name = param_names[k]
+                    var param_values = params[k]
                     var item = [];
-                    if (state_selection[param_names[k]] !== undefined) {
-                        for (var j = 0; j < params[k].length; ++j) {
-                            if (state_selection[param_names[k]].includes($.asv.convert_benchmark_param_value(params[k][j]))) {
+                    if (state_selection["p-"+param_name] !== undefined) {
+                        for (var j = 0; j < param_values.length; ++j) {
+                            if (state_selection["p-"+param_name].includes($.asv.convert_benchmark_param_value(param_values[j]))) {
                                 item.push(j);
                             }
                         }
                     } else {
-                        for (var j = 0; j < params[k].length && (j+1)*count <= max_curves; ++j) {
+                        for (var j = 0; j < param_values.length && (j+1)*count <= max_curves; ++j) {
                             item.push(j);
                         }
                     }
@@ -421,7 +423,7 @@ $(document).ready(function() {
             }
         });
         $.each(params || {}, function(key, value) {
-            info.params[key] = value;
+            info.params["p-"+key] = value;
         });
         window.location.hash = $.asv.format_hash_string(info);
     }
